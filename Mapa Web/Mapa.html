@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapPoints</title>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.13.0/mapbox-gl.js"></script>
+    <style>
+        body { margin: 0; padding: 0; }
+        #map { position: absolute; top: 0; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    <script>
+        mapboxgl.accessToken = "pk.eyJ1IjoiaWtlZGFoYXJrZXQiLCJhIjoiY2ttaHR4dzgyMGFwNjJxcXU5aHJ0cTRiNyJ9.2_w03E0sGBCnaM2M0wA-pQ";
+      
+        var map = new mapboxgl.Map({
+            container: "map",
+            style: "mapbox://styles/mapbox/streets-v11", 
+            center: [-70.73163, -34.18], 
+            zoom: 12 
+        });
+
+        const getMapPoints = async () => {
+            const resp = await fetch('https://localhost:7250/points');
+            const data = await resp.json()
+            return data
+        }
+
+        const addMarkers = async () => {
+            const MapPoints = await getMapPoints();
+
+            MapPoints.forEach(p => {
+                var marker = new mapboxgl.Marker()
+                    .setLngLat([+p.longitude, +p.latitude])
+                    .setPopup(new mapboxgl.Popup().setHTML(`<h3>${p.firstName} ${p.lastName}</h3><p>${p.rut}</p><p>${p.branch}</p><p>${p.phoneNumber}</p>`))
+                    .addTo(map)
+                    .on('click', function() {
+                        marker.togglePopup();
+                    });
+            });   
+        }
+
+        addMarkers()
+    </script>
+</body>
+</html>
